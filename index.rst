@@ -5,7 +5,6 @@ Welcome to the meta-axelera documentation!
    :maxdepth: 8
    :caption: Contents:
 
-   docs/prerequisites.rst
    docs/meta-axelera.rst
    docs/building.rst
    docs/flashing.rst
