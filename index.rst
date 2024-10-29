@@ -8,3 +8,5 @@ Welcome to the meta-axelera documentation!
    docs/changelog.rst
    docs/building.rst
    docs/flashing.rst
+   docs/testing.rst
+   docs/changelog.rst
