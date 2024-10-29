@@ -72,4 +72,4 @@ Build
 
   ::
 
-   kas-container shell -c "bitbake -c cleansstate kernel-module-axelera"
+   kas-container shell -c "bitbake kernel-module-axelera"
