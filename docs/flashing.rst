@@ -52,3 +52,11 @@ Flashing
   ::
 
    sudo upgrade_tool wl 0 build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic
+
+- **Program SD**
+
+  Insert the SD card into host.
+
+  ::
+
+   sudo bmaptool copy --bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.gz /dev/sdb

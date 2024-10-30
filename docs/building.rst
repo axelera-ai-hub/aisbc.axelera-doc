@@ -62,7 +62,7 @@ kas and podman (docker is also supported).
   ::
 
     sudo apt -y update; \
-    sudo apt install -y podman python3-pip; \
+    sudo apt install -y bmap-tools podman python3-pip; \
     pip install kas
 
 Build
