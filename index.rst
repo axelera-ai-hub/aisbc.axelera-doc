@@ -5,6 +5,6 @@ Welcome to the meta-axelera documentation!
    :maxdepth: 8
    :caption: Contents:
 
+   docs/changelog.rst
    docs/building.rst
    docs/flashing.rst
-   docs/changelog.rst
