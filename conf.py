@@ -254,13 +254,16 @@ latex_elements = {
      # Latex figure (float) alignment
      #
      # 'figure_align': 'htbp',
+    'papersize': 'a4paper',
+    'pointsize': '10pt',
+    'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'testsphinx', 'test sphinx Documentation',
+    (master_doc, 'testsphinx.tex', 'test sphinx Documentation',
      'Amarula Solutions', 'manual'),
 ]
 
