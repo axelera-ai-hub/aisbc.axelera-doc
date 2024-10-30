@@ -21,5 +21,5 @@ firefox _build/html/index.html
 ```
 sudo apt update
 sudo apt-get install texlive texlive-latex-extra texlive-fonts-recommended latexmk
-evince _build/latex/testsphinx.pdf
+evince _build/latex/axelera-bsp.pdf
 ```

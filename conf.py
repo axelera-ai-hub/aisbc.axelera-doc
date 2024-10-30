@@ -234,7 +234,7 @@ html_theme_path = ["_themes",]
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'testsphinxdoc'
+htmlhelp_basename = 'axelera-bspdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -265,7 +265,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'testsphinx.tex', 'Metis PCIe ITX-RK3588J meta-axelera Guide',
+    (master_doc, 'axelera-bsp.tex', 'Metis PCIe ITX-RK3588J meta-axelera Guide',
      'Amarula Solutions', 'manual'),
 ]
 
@@ -307,7 +307,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'testsphinx', 'test sphinx Documentation',
+    (master_doc, 'axelera-bsp', 'test sphinx Documentation',
      [author], 1)
 ]
 
@@ -322,8 +322,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'testsphinx', 'Amarula Solutions',
-     author, 'testsphinx', 'One line description of project.',
+    (master_doc, 'axelera-bsp', 'Amarula Solutions',
+     author, 'axelera-bsp', 'One line description of project.',
      'Miscellaneous'),
 ]
 
