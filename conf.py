@@ -257,6 +257,8 @@ latex_elements = {
     'papersize': 'a4paper',
     'pointsize': '10pt',
     'preamble': '',
+    'classoptions': ',openany',  # Allows chapters to start on either side
+    'extraclassoptions': 'openany,oneside',  # Prevents blank pages in single-sided layouts
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
