@@ -2,10 +2,16 @@
 
 Axelera AI Accelerator Firefly RK3588J Yocto Guide.
 
-# Build
+# Prerequisites
 
 ```
+sudo apt update
 pip install sphinx
+```
+
+# Build html
+
+```
 make html
 firefox _build/html/index.html 
 ```
