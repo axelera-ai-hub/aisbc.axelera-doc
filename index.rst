@@ -9,3 +9,4 @@ Welcome to the meta-axelera documentation!
    docs/building.rst
    docs/flashing.rst
    docs/testing.rst
+   docs/container.rst
