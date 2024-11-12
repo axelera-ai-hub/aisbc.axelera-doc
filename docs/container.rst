@@ -21,7 +21,7 @@ And the .tar archive must be imported into docker itself:
   ::
 
     cd /home/firefly
-    docker load < axelera-sdk-v0.9.0-rc6-ubuntu-2204-arm64.tar
+    docker load < axelera-sdk-ubuntu-2204-arm64.tar
 
 
 - **Copying the SDK**
