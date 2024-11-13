@@ -85,7 +85,9 @@ Build
           /builder/.ssh/known_hosts && bitbake voyager-image voyager-image-weston"
 
 
-  Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j
+  Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
+  are downloading the source code from github the keyscan should be done on github.com like
+  ssh-keyscan github.com
 
 - **Clean kernel-module-axelera**
 
