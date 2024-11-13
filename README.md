@@ -7,6 +7,7 @@ Axelera AI Accelerator Firefly RK3588J Yocto Guide.
 ```
 sudo apt update
 pip install sphinx
+pip install myst_parser
 ```
 
 # Build html
