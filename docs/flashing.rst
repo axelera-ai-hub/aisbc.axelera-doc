@@ -24,28 +24,24 @@ Flashing
 
   Loader Mode
 
-  * Disconnect the power adapter first
-  * Type-C data cable connects one end to the host and the other end to the development board.
+  * Connect one end to the host and the other end to the usb-c port on the development board.
 
   .. image:: /images/otg-conn.png
 
-  * Press MASKROM button
+  .. image:: /images/upgrade_recovery_reset_new.jpg
 
-  .. image:: /images/maskrom.png
-
-  * Connect the power adapter
-
-  * Release MASKROM button
-
+  * While holding the recovery button, tap the reset button.
+  * Wait 2 seconds, and release the reset button.
   * Check the device
 
   ::
 
     lsusb  | grep Rockchip
-    Bus 001 Device 010: ID 2207:350b Fuzhou Rockchip Electronics Company
+    Bus 001 Device 047: ID 2207:350b Fuzhou Rockchip Electronics Company USB download gadget
+
     sudo upgrade_tool LD
     List of rockusb connected(1)
-    DevNo=1    Vid=0x2207,Pid=0x350b,LocationID=12    Mode=Maskrom    SerialNo=
+    DevNo=1 Vid=0x2207,Pid=0x350b,LocationID=14     Mode=Loader    SerialNo=xxxxxxxxxxxxxxxx
 
   * Program the eMMC
 
@@ -53,10 +49,12 @@ Flashing
 
    sudo upgrade_tool wl 0 build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic
 
+  * Tap the reset button
+
 - **Program SD**
 
   Insert the SD card into host.
 
   ::
 
-   sudo bmaptool copy --bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.gz /dev/sdb
+   sudo bmaptool copy --bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.bmap build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.wic.gz /dev/sdX
