@@ -74,16 +74,27 @@ Build
 
    git clone ssh://<user_name>@gerrit-review.amarulasolutions.com:29418/axelera/meta-axelera
    cd meta-axelera
-   kas-container build
 
 - **Build voyager specific**
 
   ::
 
+   eval `ssh-agent -s`
+   ssh-add ~/.ssh/<private key>
+
+  ::
+
+   # Amarula Infrastructure
    kas-container --ssh-agent shell .config.yaml -c \
           "mkdir -p /builder/.ssh && ssh-keyscan -p 38745 gitea.amarulasolutions.com >> \
           /builder/.ssh/known_hosts && bitbake voyager-image voyager-image-weston"
 
+  ::
+
+   # Axelera infrastracture
+   kas-container --ssh-agent shell .config.yaml -c \
+          "mkdir -p /builder/.ssh && ssh-keyscan github.com >> \
+          /builder/.ssh/known_hosts && bitbake voyager-image voyager-image-weston"
 
   Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
   are downloading the source code from github the keyscan should be done on github.com like
