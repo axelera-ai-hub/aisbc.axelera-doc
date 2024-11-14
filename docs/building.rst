@@ -100,6 +100,24 @@ Build
   are downloading the source code from github the keyscan should be done on github.com like
   ssh-keyscan github.com
 
+- **Build voyager specific sdk**
+
+  ::
+
+   # Amarula Infrastructure
+   kas-container --ssh-agent shell .config.yaml -c \
+                          "mkdir -p /builder/.ssh && \
+                           ssh-keyscan -p 38745 gitea.amarulasolutions.com >> /builder/.ssh/known_hosts && \
+                           bitbake -fc populate_sdk voyager-image"
+
+  ::
+
+   # Axelera infrastracture
+   kas-container --ssh-agent shell .config.yaml -c \
+                          "mkdir -p /builder/.ssh && \
+                           ssh-keyscan github.com >> /builder/.ssh/known_hosts && \
+                           bitbake -fc populate_sdk voyager-image"
+
 - **Clean kernel-module-axelera**
 
   ::
