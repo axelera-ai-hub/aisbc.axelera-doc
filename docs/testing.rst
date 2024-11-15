@@ -9,23 +9,15 @@ Testing
 
     pip install pytest
 
-- **Add adb support to the image**
+- **Use ADB**
 
   * This particular testing suite is run directly on the host machine and not on
     the board itself.
     This means that we require `adb` support, so that gstreamer can be run
     directly from the python script running on your host.
 
-  * To do this, add the following three lines at the end of
-    `.config.yaml`, in the root of the yocto source directory:
-
-    ::
-
-      IMAGE_INSTALL:append = " android-tools-adbd android-tools-conf-rockchip "
-      PREFERRED_PROVIDER_android-tools-conf = "android-tools-conf-rockchip"
-      USB_DEBUGGING_ENABLED = "1"
-
-  * Rebuild and flash the board with this new image before proceeding.
+    The .config.yaml file already has the necessary lines to enable ADB, so no
+    modifications are needed.
 
 - **Instructions for first use**
 

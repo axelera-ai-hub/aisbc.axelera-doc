@@ -7,6 +7,7 @@ Welcome to the meta-axelera documentation!
 
    docs/changelog.rst
    docs/building.rst
+   docs/development-setup.rst
    docs/flashing.rst
    docs/testing.rst
    docs/container.rst
