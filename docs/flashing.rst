@@ -22,7 +22,38 @@ Flashing
 
 - **Program eMMC**
 
-  Loader Mode
+  Loader Mode (Maskrom mode)
+
+  * Disconnect the power adapter first or hold the reset button
+  * Type-C data cable connects one end to the host and the other end to the development board.
+
+  .. image:: /images/otg-conn.png
+
+  * Press MASKROM button
+
+  .. image:: /images/maskrom.png
+
+  * Connect the power adapter or release reset button
+
+  * Release MASKROM button
+
+  * Check the device
+
+  ::
+
+    lsusb  | grep Rockchip
+    Bus 001 Device 010: ID 2207:350b Fuzhou Rockchip Electronics Company
+    sudo upgrade_tool LD
+    List of rockusb connected(1)
+    DevNo=1    Vid=0x2207,Pid=0x350b,LocationID=12    Mode=Maskrom    SerialNo=
+
+  * Program the eMMC
+
+  ::
+
+   sudo upgrade_tool uf build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.update.img
+
+  Loader Mode (Recovery mode)
 
   * Connect one end to the host and the other end to the usb-c port on the development board.
 
