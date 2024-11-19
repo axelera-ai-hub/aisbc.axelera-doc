@@ -32,7 +32,7 @@ To do this, a container must be created using the image we previously imported:
 
   ::
 
-    docker create axelera-sdk-ubuntu-2204-arm64:0.9.0-rc6
+    docker create axelera-sdk-ubuntu-2204-arm64:1.0.0-a6
 
 Next, the id of the container must be found:
 
@@ -45,7 +45,7 @@ Which should output something like:
   ::
 
     CONTAINER ID   IMAGE                                     COMMAND            CREATED         STATUS    PORTS     NAMES
-    <your_id>      axelera-sdk-ubuntu-2204-arm64:0.9.0-rc6   "/entrypoint.sh"   2 seconds ago   Created             <example_name>
+    <your_id>      axelera-sdk-ubuntu-2204-arm64:1.0.0-a6    "/entrypoint.sh"   2 seconds ago   Created             <example_name>
 
 Using this id we can copy the SDK from the image to out current directory, which as previously stated must be `/home/firefly`.
 
