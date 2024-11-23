@@ -85,16 +85,18 @@ Build
   ::
 
    # Amarula Infrastructure
-   kas-container --ssh-agent shell .config.yaml -c \
-          "mkdir -p /builder/.ssh && ssh-keyscan -p 38745 gitea.amarulasolutions.com >> \
-          /builder/.ssh/known_hosts && bitbake voyager-image voyager-image-weston"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+          "bitbake voyager-image voyager-image-weston"
 
   ::
 
    # Axelera infrastracture
-   kas-container --ssh-agent shell .config.yaml -c \
-          "mkdir -p /builder/.ssh && ssh-keyscan github.com >> \
-          /builder/.ssh/known_hosts && bitbake voyager-image voyager-image-weston"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan github.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+          "bitbake voyager-image voyager-image-weston"
 
   Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
   are downloading the source code from github the keyscan should be done on github.com like
@@ -105,24 +107,26 @@ Build
   ::
 
    # Amarula Infrastructure
-   kas-container --ssh-agent shell .config.yaml -c \
-                          "mkdir -p /builder/.ssh && \
-                           ssh-keyscan -p 38745 gitea.amarulasolutions.com >> /builder/.ssh/known_hosts && \
-                           bitbake -fc populate_sdk voyager-image"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+                           "bitbake -fc populate_sdk voyager-image"
 
   ::
 
    # Axelera infrastracture
-   kas-container --ssh-agent shell .config.yaml -c \
-                          "mkdir -p /builder/.ssh && \
-                           ssh-keyscan github.com >> /builder/.ssh/known_hosts && \
-                           bitbake -fc populate_sdk voyager-image"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan github.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+                          "bitbake -fc populate_sdk voyager-image"
 
 - **Clean kernel-module-axelera**
 
   ::
 
-   kas-container shell -c "bitbake -c cleansstate kernel-module-axelera"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan github.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake -c cleansstate kernel-module-axelera"
 
 - **Build kernel-module-axelera**
 
