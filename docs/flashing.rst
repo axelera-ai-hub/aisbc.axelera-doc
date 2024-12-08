@@ -39,6 +39,8 @@ Flashing
 
   * Check the device
 
+  * Alternative you can reboot bootloader. This reboot in a compatible mask rom mode
+
   ::
 
     lsusb  | grep Rockchip
