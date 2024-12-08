@@ -87,15 +87,26 @@ Build
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
+
+   # Firefly itx-3588
    kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+          "bitbake voyager-image voyager-image-weston"
+   # Antelao rk3588
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config-antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   ::
 
-   # Axelera infrastracture
+   # Axelera Infrastracture
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
+
+   # Firefly itx-3588
    kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config.yaml -c \
+          "bitbake voyager-image voyager-image-weston"
+
+   # Antelao rk3588
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell .config-antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
