@@ -16,7 +16,7 @@ Testing
     This means that we require `adb` support, so that gstreamer can be run
     directly from the python script running on your host.
 
-    The .config.yaml file already has the necessary lines to enable ADB, so no
+    The kas/include/base.yaml file already has the necessary lines to enable ADB, so no
     modifications are needed.
 
 - **Instructions for first use**

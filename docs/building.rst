@@ -89,10 +89,10 @@ Build
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-itx.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
           "bitbake voyager-image voyager-image-weston"
    # Antelao rk3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-antelao.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   ::
@@ -102,11 +102,11 @@ Build
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-itx.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
    # Antelao rk3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-antelao.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
@@ -120,7 +120,7 @@ Build
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-itx.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
                            "bitbake -fc populate_sdk voyager-image"
 
   ::
@@ -128,7 +128,7 @@ Build
    # Axelera infrastracture
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell build-itx.yaml -c \
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
                           "bitbake -fc populate_sdk voyager-image"
 
 - **Clean kernel-module-axelera**

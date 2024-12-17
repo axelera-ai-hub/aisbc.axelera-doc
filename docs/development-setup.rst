@@ -3,7 +3,7 @@ Development Setup
 
 - **ADB**
 
-  * The .config.yaml file already has the necessary lines to enable ADB, so no modifications are needed to the build system.
+  * The kas/include/base.yaml file already has the necessary lines to enable ADB, so no modifications are needed to the build system.
 
   * Install adb
 
