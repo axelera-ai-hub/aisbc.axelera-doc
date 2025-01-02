@@ -145,4 +145,6 @@ Build
 
   ::
 
-   kas-container shell -c "bitbake kernel-module-axelera"
+   mkdir -p ssh-build-hosts
+   ssh-keyscan github.com > ssh-build-hosts/known_hosts
+   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake kernel-module-axelera"
