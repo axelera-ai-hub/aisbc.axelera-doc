@@ -98,6 +98,7 @@ Build
   ::
 
    # Axelera Infrastracture
+   export USE_GITHUB=1
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
 
@@ -126,6 +127,7 @@ Build
   ::
 
    # Axelera infrastracture
+   export USE_GITHUB=1
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
    kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
