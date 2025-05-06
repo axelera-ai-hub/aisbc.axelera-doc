@@ -84,15 +84,23 @@ Build
 
   ::
 
+We need to build the conteinar using Java. This is available in our container available at
+registry.amarulasolutions.com:443/kas-mend-builder.
+The following steps will take this into account.
+
+  ::
+
+   # Shortcut to have the Kas container available
+   export KAS_CONTAINER_AXELERA="registry.amarulasolutions.com:443/kas-mend-builder"
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
           "bitbake voyager-image voyager-image-weston"
    # Antelao rk3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   ::
@@ -103,11 +111,11 @@ Build
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
    # Antelao rk3588
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
           "bitbake voyager-image voyager-image-weston"
 
   Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
@@ -121,7 +129,7 @@ Build
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
                            "bitbake -fc populate_sdk voyager-image"
 
   ::
@@ -130,7 +138,7 @@ Build
    export USE_GITHUB=1
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
                           "bitbake -fc populate_sdk voyager-image"
 
 - **Clean kernel-module-axelera**
@@ -139,7 +147,7 @@ Build
 
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake -c cleansstate kernel-module-axelera"
+   kKAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} as-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake -c cleansstate kernel-module-axelera"
 
 - **Build kernel-module-axelera**
 
@@ -147,4 +155,4 @@ Build
 
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake kernel-module-axelera"
+   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake kernel-module-axelera"
