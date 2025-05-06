@@ -265,7 +265,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'axelera-bsp.tex', 'Metis PCIe ITX-RK3588J meta-axelera Guide',
+    (master_doc, 'axelera-bsp.tex', 'Metis PCIe Antelao/ITX-RK3588J meta-axelera Guide',
      'Amarula Solutions', 'manual'),
 ]
 
