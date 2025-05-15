@@ -1,6 +1,25 @@
 Generic usage guide
 =======================
 
+- **Change Linux user password**
+
+To change the password for the currently logged in user,
+simply run:
+
+  ::
+
+    passwd
+
+And follow the prompts:
+
+  ::
+
+    Changing password for antelao.
+    Current password:
+    New password:
+    Retype new password:
+    passwd: password updated successfully
+
 - **Set static IP address**
 
 To set a static IP address for any board running Voyager Linux,
