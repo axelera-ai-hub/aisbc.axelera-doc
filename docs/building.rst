@@ -82,8 +82,6 @@ Build
    eval `ssh-agent -s`
    ssh-add ~/.ssh/<private key>
 
-  ::
-
 We need to build the conteinar using Java. This is available in our container available at
 registry.amarulasolutions.com:443/kas-mend-builder.
 The following steps will take this into account.
