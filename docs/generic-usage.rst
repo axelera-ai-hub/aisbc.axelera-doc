@@ -217,3 +217,88 @@ To check if the process was successful:
         inet6 fe80::bbf5:174d:c2c6:dc2e/64 scope link noprefixroute 
            valid_lft forever preferred_lft forever
 
+- **Setting up WireGuard VPN**
+
+The configuration for this section is entirely dependent upon how the
+WireGuard hosting is handled, therefore no information will be provided
+about it in this section.
+The assumption here is that the configuration file is found at:
+
+  ::
+
+    /etc/wireguard/wg0.conf
+
+Please replace this path in all following commands with your correct
+one.
+
+Using the `nmcli` utility, the first step is to import the new
+connection using the configuration file:
+
+  ::
+
+    nmcli connection import type wireguard file /etc/wireguard/wg0.conf
+
+As in the previous example about setting a static IP address,
+the connection can be edited as needed with:
+
+  ::
+
+    nmcli connection edit wg0
+
+To activate the connection:
+
+  ::
+
+    nmcli connection up wg0
+
+To check it's working as intended, check the device status from `nmcli`:
+
+  ::
+
+    nmcli device status
+
+  ::
+
+    DEVICE  TYPE       STATE                   CONNECTION
+    [...]
+    wg0     wireguard  connected               wg0
+    [...]
+
+And check that the `wg0` interface has the correct IP address assigned,
+for example:
+
+  ::
+
+    ip addr show wg0
+
+  ::
+
+    23: wg0: <POINTOPOINT,NOARP,UP,LOWER_UP> mtu 1420 qdisc noqueue qlen 1000
+        link/[65534]
+        inet 10.8.0.2/24 brd 10.8.0.255 scope global noprefixroute wg0
+           valid_lft forever preferred_lft forever
+
+Try to ping, to check the connection and the DNS resolution are working
+correctly:
+
+  ::
+
+    ping -I wg0 axelera.ai
+
+  ::
+
+    PING axelera.ai (199.60.103.26): 56 data bytes
+    64 bytes from 199.60.103.26: seq=0 ttl=51 time=83.498 ms
+    64 bytes from 199.60.103.26: seq=1 ttl=51 time=93.698 ms
+    64 bytes from 199.60.103.26: seq=2 ttl=51 time=48.087 ms
+    64 bytes from 199.60.103.26: seq=3 ttl=51 time=44.390 ms
+    ^C
+    --- axelera.ai ping statistics ---
+    4 packets transmitted, 4 packets received, 0% packet loss
+    round-trip min/avg/max = 44.390/67.418/93.698 ms
+
+And finally, to close the VPN connection:
+
+  ::
+
+    nmcli connection down wg0
