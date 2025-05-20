@@ -302,3 +302,93 @@ And finally, to close the VPN connection:
   ::
 
     nmcli connection down wg0
+
+- **Changing SSH server configuration**
+
+The SSH server running on the distribution is based on Dropbear.
+Specifically, the Dropbear systemd socket is responsible for the port
+listening.
+To change the port from the default `22` to, for example, `2222`:
+
+  ::
+
+    systemctl edit dropbear.socket
+
+  ::
+
+    ### Editing /etc/systemd/system/dropbear.socket.d/override.conf
+    ### Anything between here and the comment below will become the new contents of
+
+    [Socket]
+    ListenStream=
+    ListenStream=2222
+
+    ### Lines below this comment will be discarded
+
+    ### /lib/systemd/system/dropbear.socket
+    # [Unit]
+    # Conflicts=dropbear.service
+    #
+    # [Socket]
+    # ListenStream=22
+    # Accept=yes
+    #
+    # [Install]
+    # WantedBy=sockets.target
+    # Also=dropbearkey.service
+
+For the rest of the configuration, which is Dropbear-specific,
+the default configuration file for dropbear, which is automatically
+imported by the systemd service template, can be found at
+:code:`/etc/default/dropbear`.
+
+To change the command line arguments for dropbear, e.g.:
+
+  ::
+
+    dropbear -h
+
+    Dropbear server v2020.81 https://matt.ucc.asn.au/dropbear/dropbear.html
+    Usage: dropbear [options]
+    -b bannerfile	Display the contents of bannerfile before user login
+                (default: none)
+    -r keyfile      Specify hostkeys (repeatable)
+                defaults:
+                - dss /etc/dropbear/dropbear_dss_host_key
+                - rsa /etc/dropbear/dropbear_rsa_host_key
+                - ecdsa /etc/dropbear/dropbear_ecdsa_host_key
+                - ed25519 /etc/dropbear/dropbear_ed25519_host_key
+    -R		Create hostkeys as required
+    -F		Don't fork into background
+    -E		Log to stderr rather than syslog
+    -m		Don't display the motd on login
+    -w		Disallow root logins
+    -G		Restrict logins to members of specified group
+    -s		Disable password logins
+    -g		Disable password logins for root
+    -B		Allow blank password logins
+    -T		Maximum authentication tries (default 10)
+    -j		Disable local port forwarding
+    -k		Disable remote port forwarding
+    -a		Allow connections to forwarded ports from any host
+    -c command	Force executed command
+    -p [address:]port
+                Listen on specified tcp port (and optionally address),
+                up to 10 can be specified
+                (default port is 22 if none specified)
+    -P PidFile	Create pid file PidFile
+                (default /var/run/dropbear.pid)
+    -i		Start for inetd
+    -W <receive_window_buffer> (default 24576, larger may be faster, max 1MB)
+    -K <keepalive>  (0 is never, default 0, in seconds)
+    -I <idle_timeout>  (0 is never, default 0, in seconds)
+    -V    Version
+
+For example, to disable password logins for root, open
+:code:`/etc/default/dropbear` with a text editor and add `-g`
+to the `DROPBEAR_EXTRA_ARGS`:
+
+  ::
+
+    # Disallow root logins by default
+    DROPBEAR_EXTRA_ARGS=" -B -g"
