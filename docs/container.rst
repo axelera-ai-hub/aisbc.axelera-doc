@@ -47,3 +47,24 @@ which can also be found at `/home/firefly/` or `/home/antelao`:
     ./start_axelera.py start
 
 At the first invocation this should compile `gst-operators`, and finally provide a shell inside the docker container itself.
+
+- **Useful information**
+
+There is a shared directory between the container and the host machime, to allow simple file sharing and data
+persistence.
+
+This directory is contained in the home directory of the user for the specific board:
+
+.. list-table:: Shared directories
+   :widths: 25 50 50
+   :header-rows: 1
+
+   * - Board name
+     - Host machine dir
+     - Container dir
+   * - antelao
+     - /home/antelao/shared
+     - /home/ubuntu/shared
+   * - firefly
+     - /home/firefly/shared
+     - /home/ubuntu/shared
