@@ -50,8 +50,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'meta-axelera'
-copyright = '2024, Amarula Solutions'
-author = 'Amarula Solutions'
+copyright = '2024, Axelera AI BV.'
+author = 'Axelera AI BV.'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -266,7 +266,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'axelera-bsp.tex', 'Metis PCIe Antelao/ITX-RK3588J meta-axelera Guide',
-     'Amarula Solutions', 'manual'),
+     'Axelera AI BV.', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -322,7 +322,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'axelera-bsp', 'Amarula Solutions',
+    (master_doc, 'axelera-bsp', 'Axelera AI BV.',
      author, 'axelera-bsp', 'One line description of project.',
      'Miscellaneous'),
 ]
