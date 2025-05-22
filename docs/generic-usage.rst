@@ -1,6 +1,26 @@
 Generic usage guide
 =======================
 
+- **Default passwords**
+
+The default login passwords for the various users are:
+
+.. list-table:: Default passwords
+   :widths: 25 25
+   :header-rows: 1
+
+   * - Username
+     - Password
+   * - antelao
+     - AxeAntelao2025
+   * - firefly
+     - AxeFirefly2025
+   * - root
+     - AxeRoot2025
+
+Note that the `firefly` user is only present on the Firefly ITX-3588J board,
+while the `antelao` user is only present on the Antelao board.
+
 - **Change Linux user password**
 
 To change the password for the currently logged in user,
