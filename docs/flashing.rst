@@ -80,7 +80,7 @@ Flashing
 
   ::
 
-  sudo upgrade_tool uf build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.update.img
+    sudo upgrade_tool uf build/tmp-glibc/deploy/images/itx-3588j/voyager-image-weston-itx-3588j.update.img
 
   * Tap the reset button
 
