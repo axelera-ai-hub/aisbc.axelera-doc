@@ -412,3 +412,66 @@ to the `DROPBEAR_EXTRA_ARGS`:
 
     # Disallow root logins by default
     DROPBEAR_EXTRA_ARGS=" -B -g"
+
+- **Automatically mounting external disk**
+
+To make sure an external disk is automatically mounted on boot,
+and therefore to run all the commands shown in this example,
+it is *necessary to have root access* to the machine.
+
+The first step is to connect the disk itself, which in this specific
+example is connected through one of the available SATA ports.
+
+The first thing to do is to identify the UUID and the type of the disk
+itself, by running:
+
+  ::
+
+    lsblk -f
+
+  ::
+
+    NAME         FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+    sda
+    `-sda1       ext4         work  <your_uuid>
+
+Take note of the `UUID` and the `FSTYPE` of the volume you would like
+to mount.
+In this example, `/dev/sda1` of type `ext4` will be mounted to
+`/media/external`.
+
+Next, create the directory which will be used as a mounting point:
+
+  ::
+
+    mkdir -p /media/external
+
+Finally, open `/etc/fstab` with your preferred text editor, and add the
+following line at the end of the file:
+
+  ::
+
+    UUID=<your_uuid> /media/external ext4 defaults,nofail 0 2
+
+To check that the procedure was succesful, it is possible to mount
+all drives listed in `/etc/fstab` without rebooting by running:
+
+  ::
+
+    mount -a
+
+And checking the disk is now mounted correctly by running lsblk again,
+which now shows `/media/external` as mountpoint:
+
+  ::
+
+    lsblk -f
+
+  ::
+
+    NAME         FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+    sda
+    `-sda1       ext4         work  <your_uuid>                          416.6G     4% /media/external
+
+After rebooting the machine, the disk should be automatically mounted
+if everything was done correctly.
