@@ -6,7 +6,7 @@ Axelera AI Accelerator Firefly RK3588J Yocto Guide.
 
 ```
 sudo apt update
-sudo apt install python3-sphinx python3-myst-parser python3-sphinx-copybutton
+sudo apt install python3-sphinx python3-myst-parser python3-sphinx-copybutton latexmk texlive-latex-extra
 ```
 
 # Build html
