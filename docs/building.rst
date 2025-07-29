@@ -49,13 +49,15 @@ kas and podman (docker is also supported).
   **Note: kas uses a Debian 12 container to build Yocto, any**
   **distribution with either podman or Docker will work.**
 
+  **Note: kas >= 4.8 is required.**
+
 - **Fedora 40**
 
   ::
 
     sudo dnf -y update; \
     sudo dnf install -y podman python3-pip; \
-    pip3 install -y kas
+    pip3 install -U "kas>=4.8"
 
 - **Ubuntu 22.04**
 
@@ -63,7 +65,7 @@ kas and podman (docker is also supported).
 
     sudo apt -y update; \
     sudo apt install -y bmap-tools podman python3-pip; \
-    pip install kas
+    pip install -U "kas>=4.8"
 
 Build
 -----
