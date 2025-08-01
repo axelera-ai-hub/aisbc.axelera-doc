@@ -10,5 +10,6 @@ Welcome to the meta-axelera documentation!
    docs/development-setup.rst
    docs/flashing.rst
    docs/rtsp-benchmark-testing.rst
+   docs/usb-testing.rst
    docs/container.rst
    docs/generic-usage.rst
