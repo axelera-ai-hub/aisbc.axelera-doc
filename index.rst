@@ -9,6 +9,6 @@ Welcome to the meta-axelera documentation!
    docs/building.rst
    docs/development-setup.rst
    docs/flashing.rst
-   docs/testing.rst
+   docs/rtsp-benchmark-testing.rst
    docs/container.rst
    docs/generic-usage.rst
