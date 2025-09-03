@@ -13,3 +13,4 @@ Welcome to the meta-axelera documentation!
    docs/usb-testing.rst
    docs/container.rst
    docs/generic-usage.rst
+   docs/updates.rst
