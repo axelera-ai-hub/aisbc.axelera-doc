@@ -3,6 +3,13 @@ Revision History
 
 `-------------------------------------------------------------`
 
+| Author: **Meena Murthy <Meena.Murthy@amarulasolutions.com>**
+| Date: **September 24 2025**
+
+**Changes**::
+
+  - AXELERA-117 Update documentation with stress-ng results
+
 | Author: **Michael Trimarchi <michael@amarulasolutions.com>**
 | Date: **May 30 2025**
 | Release v1.1.0-rc1 Axelera Yocto

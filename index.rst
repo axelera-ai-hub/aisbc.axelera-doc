@@ -14,3 +14,4 @@ Welcome to the meta-axelera documentation!
    docs/container.rst
    docs/generic-usage.rst
    docs/updates.rst
+   docs/test-results.rst
