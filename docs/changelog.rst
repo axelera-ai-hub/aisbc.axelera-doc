@@ -10,6 +10,15 @@ Revision History
 
   - AXELERA-117 Update documentation with stress-ng results
 
+
+| Author: **Meena Murthy <Meena.Murthy@amarulasolutions.com>**
+| Date: **September 04 2025**
+
+**Changes**::
+
+  - AXELERA-104 Create mender documentation in axelera-doc
+
+
 | Author: **Michael Trimarchi <michael@amarulasolutions.com>**
 | Date: **May 30 2025**
 | Release v1.1.0-rc1 Axelera Yocto
