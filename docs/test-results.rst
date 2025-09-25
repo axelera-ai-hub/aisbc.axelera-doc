@@ -4,13 +4,13 @@ Testing
 **Stress-ng**
 
 - **Rationale**
-Stress-ng testing over a duration is necessary to find ou the stability, resilience and enduramce of the system.
+Stress-ng testing over a duration is necessary to find ou the stability, resilience and endurance of the system.
 
 - **Stress-ng command format**
 
     * stress-ng - main command
     * vm - virtual memory; stressor option
-    * vm-bytes - bytes of virtual memorey allocates; stressor option
+    * vm-bytes - bytes of virtual memory allocates; stressor option
     * vm-method - methods to cycle through such as read, write, fill, touch, move, etc; stressor option
     * verify - ensures written data is read back correctly,tests correctness and speed; stressor option
     * mmap - maps memory regions and access them; stressor option

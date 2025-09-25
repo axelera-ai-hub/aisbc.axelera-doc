@@ -41,7 +41,7 @@ Revision History
 
 **Changes**::
 
-  First release of Yocto Kirstone Antelao release. Provide all the basic features
+  First release of Yocto Kirkstone Antelao release. Provide all the basic features
 
 
 | Author: **Adam Duskett <Adam.Duskett@amarulasolutions.com>**
@@ -51,7 +51,7 @@ Revision History
 
   - Split into multiple files.
   - Rework Revision history page formatting.
-  - Add more thurough prerequisites documentation.
+  - Add more thorough prerequisites documentation.
 
 
 `---------------------------------`
