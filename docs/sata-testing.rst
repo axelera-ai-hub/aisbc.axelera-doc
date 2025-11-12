@@ -222,3 +222,19 @@ SATA Disk Benchmarking
       -------------------------------------------------
       Removed /mnt/sata/benchmark_testfile
       Benchmark complete.
+
+- **Cleanup**
+
+  Please clean up after these tests.
+  The first step is to unmount the disk:
+
+    ::
+
+      umount /dev/sda1
+      sync
+
+  And finally, remove `/data/mnt`:
+
+    ::
+
+      rm -r /data/mnt
