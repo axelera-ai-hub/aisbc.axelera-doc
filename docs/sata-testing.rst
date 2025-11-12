@@ -9,32 +9,47 @@ SATA Disk Benchmarking
 
 - **Instructions**
 
-  Since the rootfs is read-only, two mountpoints are already provided.
+  To start, it is required to mount the disk to a mountpoint in the
+  expected directory, which is `/data/mnt`.
 
-  To start, it is required to mount the disk to one of the provided
-  mountpoints.
-  Assuming the disk is on `/dev/sda1`, then:
+  This directory does not, by deafult, exist.
+  Therefore it must be created, alongside its subdirectories which
+  will be the mountpoints themselves.
+  These subdirectories can have any name:
 
     ::
 
-      mount /dev/sda1 /mnt/sata0
+      mkdir -p /data/mnt/sata0
 
   Or:
 
     ::
 
-      mount /dev/sda1 /mnt/sata1
+      mkdir -p /data/mnt/example
 
-  Then, simply run the following script:
+  Assuming the disk is on `/dev/sda1`, then:
+
+    ::
+
+      mount /dev/sda1 /data/mnt/sata0
+
+  Or:
+
+    ::
+
+      mount /dev/sda1 /data/mnt/example
+
+  Then, simply run the following script, passing `sata0` or `example`
+  as an argument:
 
     ::
 
       #!/bin/bash
 
       # A simple script to benchmark a drive and clean up.
-      # The script accepts one argument: the name of the mount point directory under /mnt/
-      # Example: ./fiotest.sh sata0  (will use /mnt/sata0)
-      # Example: ./fiotest.sh mydrive (will use /mnt/mydrive)
+      # The script accepts one argument: the name of the mount point directory under /data/mnt/
+      # Example: ./fiotest.sh sata0  (will use /data/mnt/sata0)
+      # Example: ./fiotest.sh mydrive (will use /data/mnt/mydrive)
       #
       # This script requires 'fio' to be installed.
 
@@ -42,12 +57,12 @@ SATA Disk Benchmarking
       if [[ "$#" -ne 1 ]]; then
           echo "Usage: $0 <mount_directory_name>"
           echo "Example: $0 sata0"
-          echo "This will use /mnt/sata0 as the mount point."
+          echo "This will use /data/mnt/sata0 as the mount point."
           exit 1
       fi
 
       MOUNT_SUFFIX="$1"
-      MOUNT_POINT="/mnt/${MOUNT_SUFFIX}"
+      MOUNT_POINT="/data/mnt/${MOUNT_SUFFIX}"
       TEST_FILE="${MOUNT_POINT}/benchmark_testfile"
       FILE_SIZE_MB="1024" # 1GB
 
