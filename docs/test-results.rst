@@ -4,7 +4,7 @@ Testing
 **Stress-ng**
 
 - **Rationale**
-Stress-ng testing over a duration is necessary to find ou the stability, resilience and endurance of the system.
+Stress-ng testing over a duration is necessary to find out the stability, resilience and endurance of the system.
 
 - **Stress-ng command format**
 
