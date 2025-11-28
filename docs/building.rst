@@ -12,6 +12,8 @@ meta-axelera
 
   * machine/
 
+    * antelao-3588.conf: Antelao kernel and uboot information.
+    * firefly-rk3588.conf: Firefly Rk3588J kernel and uboot information.
     * itx-3588j.conf: itx machine kernel and uboot information.
 
   * layer.conf: meta-axelera layer information.
@@ -19,8 +21,6 @@ meta-axelera
 - **recipes-core**
 
   * images/
-
-    * voyager-image.bb: Base image. This will be used for production images.
 
     * voyager-image-weston.bb: Debug image that includes Wayland and Weston.
 
@@ -66,6 +66,12 @@ kas and podman (docker is also supported).
     sudo apt -y update; \
     sudo apt install -y bmap-tools podman python3-pip; \
     pip install -U "kas>=4.8"
+
+- **Ubuntu 24.04**
+
+  ::
+
+  pipx install kas
 
 Build
 -----

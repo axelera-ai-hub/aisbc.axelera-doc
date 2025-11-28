@@ -11,26 +11,35 @@ Updating
 
   * | Update files are generated automatically in the
     | ``build/tmp-glibc/deploy/images/${MACHINE}/`` directory as part of the build.
-  * | The update files are named either ``voyager-image-weston-itx-3588j.mender`` or
-    | ``voyager-image-weston-antelao.mender``.
+  * | The update files are named ``voyager-image-weston-<board_name>.mender``.
 
 - **How to install updates**
 
-  * | Upload the .mender file to the device using adb:**
+
+  * | Upload the .mender file to the device using your preferred method.
+    | Ensure the image is copied to a writeable directory such as ``/data`` or ``/home/<board_user>``,
+    | since the rest of the rootfs is read-only.
+
+    | If using ssh, from the host machine run:
 
     .. code-block:: bash
 
-        MACHINE="antelao"
-        IMAGE_DIR=build/tmp-glibc/deploy/images/${MACHINE}
-        adb push ${IMAGE_DIR}/voyager-image-weston-${MACHINE}.mender /data/
+        scp path/to/voyager-image-weston-<board_name>-<version>.mender <board_user>@<board_ip_addr>:/data/
 
-  * | Enter the adb shell and install the udpate file
+    | Or if using adb:
 
     .. code-block:: bash
 
-        adb shell
-        sh-5.1# mender install /data/voyager-image-weston-${MACHINE}.mender
-        sh-5.1# reboot
+        adb push path/to/voyager-image-weston-<board_name>-<version>.mender /data/
+
+  * | Board can be accessed using ``ssh root@<board_ip_address>`` where board and host computer are on the same network
+    | or ``adb shell`` where board is connected to host computer via USB port.
+    | To install the update file, with root access from the board itself run:
+
+    .. code-block:: bash
+
+        mender install /data/voyager-image-weston-<board_name>-<version>.mender
+        reboot
 
 - **Partition layout**
 
