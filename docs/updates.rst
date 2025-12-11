@@ -77,3 +77,24 @@ Updating
         |-mmcblk0p7  179:7    0    2G  0 part /
         |-mmcblk0p8  179:8    0  128M  0 part /factory
         `-mmcblk0p9  179:9    0 54.3G  0 part /data
+
+- **Update metis driver kernel module**
+
+  * | To update the metis driver kernel module, you must have access
+      to the debian package of the new wanted version.
+      Its name should be something like:
+    | ``kernel-module-metis-<kernel_version>_<driver_version>_arm64.deb``.
+
+  * | Next, copy the ``.deb`` package to the board in the same way as
+      for the ``.mender`` images shown above in the section
+      `How to install updates`.
+
+  * | Finally, run the following:
+
+    .. code-block:: bash
+
+        mount -o remount,rw /
+        umount -l /var/ib
+        dpkg -i path/to/kernel-module-metis-<kernel_version>_<driver_version>_arm64.deb
+        sync
+        reboot
