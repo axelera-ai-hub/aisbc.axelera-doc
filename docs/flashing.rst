@@ -99,32 +99,34 @@ Firefly
 
 Antelao
 -------
+
 - **Program eMMC**
 
-|There are no MASKROM or Recovery buttons in Antelao board.
-|If for any reason you cannot access Linux of the device, for example if you flash the wrong image and it doesn't boot anymore,or if it's frozen,
-|then power off the board, short the two pins of SW1, and power on the board back. This causes it to go into Maskrom mode.
-|There is no Recovery mode for Antelao.
 
-Loader Mode (Maskrom mode)
+  | There are no MASKROM or Recovery buttons in Antelao board.
+  | If for any reason you cannot access Linux of the device, for example if you flash the wrong image and it doesn't boot anymore,or if it's frozen,
+  | then power off the board, short the two pins of SW1, and power on the board back. This causes it to go into Maskrom mode.
+  | There is no Recovery mode for Antelao.
 
-  * Ensure you are having root access to board's Linux
+  Loader Mode (Maskrom mode)
 
-  * Use ``reboot bootloader`` to enter MASKROM mode
+    * Ensure you are having root access to board's Linux
 
-  ::
+    * Use ``reboot bootloader`` to enter MASKROM mode
 
-    lsusb  | grep Rockchip
-    Bus 008 Device 018: ID 2207:0006 Fuzhou Rockchip Electronics Company RK3xxx
-    upgrade_tool LD
-    List of rockusb connected(1)
-    DevNo=8    Vid=0x2207,Pid=0x0006,LocationID=12    Mode=Maskrom    SerialNo=
+    ::
 
-  * Program the eMMC
+      lsusb  | grep Rockchip
+      Bus 008 Device 018: ID 2207:0006 Fuzhou Rockchip Electronics Company RK3xxx
+      upgrade_tool LD
+      List of rockusb connected(1)
+      DevNo=8    Vid=0x2207,Pid=0x0006,LocationID=12    Mode=Maskrom    SerialNo=
 
-  ::
+    * Program the eMMC
 
-   sudo upgrade_tool UF path/to/voyager-image-weston-antelao-3588.update.img
+    ::
+
+     sudo upgrade_tool UF path/to/voyager-image-weston-antelao-3588.update.img
 
 - **Program SD**
 
