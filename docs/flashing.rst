@@ -102,6 +102,7 @@ Antelao
 
 - **Program eMMC**
 
+  .. image:: /images/antelao.png
 
   | There are no MASKROM or Recovery buttons in Antelao board.
   | If for any reason you cannot access Linux of the device, for example if you flash the wrong image and it doesn't boot anymore,or if it's frozen,
