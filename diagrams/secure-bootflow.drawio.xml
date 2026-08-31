@@ -1,0 +1,55 @@
+<mxfile host="app.diagrams.net" version="24.7.17" type="device">
+  <diagram id="secure-boot-flow" name="Chain of trust">
+    <mxGraphModel dx="900" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="800" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="bootrom" value="BootROM" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#f0f0f0;strokeColor=#a6a6a6;dashed=1;fontColor=#808080;" vertex="1" parent="1">
+          <mxGeometry x="30" y="30" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="idblock" value="idblock&lt;br&gt;(TPL/SPL, DDR init, BL31)" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#e0e4e8;strokeColor=#8c959f;dashed=1;fontColor=#707880;" vertex="1" parent="1">
+          <mxGeometry x="30" y="165" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="uboot" value="U-Boot proper" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="30" y="300" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="bootimg" value="boot.img&lt;br&gt;Image.lz4 + resource.img&lt;br&gt;+ dm-verity initramfs" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#e1d5e7;strokeColor=#9673a6;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="30" y="535" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rootfs" value="dm-verity mapped rootfs&lt;br&gt;read-only, hash-verified&lt;br&gt;on every block read" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#1a1a1a;" vertex="1" parent="1">
+          <mxGeometry x="30" y="670" width="360" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" value="verifies signature of idblock&lt;br&gt;against SHA hash fused in OTP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#a6a6a6;strokeWidth=2;dashed=1;fontSize=17;fontColor=#808080;labelBackgroundColor=none;align=left;verticalAlign=middle;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="bootrom" target="idblock">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="15" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e2" value="verifies U-Boot proper" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#8c959f;strokeWidth=2;dashed=1;fontSize=17;fontColor=#707880;labelBackgroundColor=none;align=left;verticalAlign=middle;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="idblock" target="uboot">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="15" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e3" value="AVB: reads vbmeta_{a,b}, checks its signature&lt;br&gt;against the public key compiled into the&lt;br&gt;U-Boot binary&lt;br&gt;(include/android_avb/avb_root_pub.h)&lt;br&gt;&lt;br&gt;AVB: checks the hash descriptor for boot_{a,b}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6c8ebf;strokeWidth=2;fontSize=17;fontColor=#1a1a1a;labelBackgroundColor=none;align=left;verticalAlign=middle;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="uboot" target="bootimg">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="15" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="e4" value="initramfs runs veritysetup with a&lt;br&gt;root hash baked in at build time" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9673a6;strokeWidth=2;fontSize=17;fontColor=#1a1a1a;labelBackgroundColor=none;align=left;verticalAlign=middle;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="bootimg" target="rootfs">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="15" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
