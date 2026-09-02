@@ -1,2 +1,5 @@
 _build/
 axelera_doc.egg-info
+# rendered by scripts/drawio-to-svg.sh from diagrams/*.drawio.xml
+/images/*.drawio.svg
+/images/*.drawio.pdf
