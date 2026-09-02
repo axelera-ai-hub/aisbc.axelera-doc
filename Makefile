@@ -14,6 +14,12 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
+DIAGRAM_SCRIPT  := scripts/drawio-to-svg.sh
+DIAGRAM_TARGETS := html dirhtml singlehtml latex latexpdf latexpdfja \
+		   epub epub3 htmlhelp qthelp applehelp devhelp \
+		   json pickle text man texinfo info xml pseudoxml \
+		   linkcheck doctest coverage changes dummy
+
 .PHONY: help
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
@@ -43,11 +49,19 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 	@echo "  coverage   to run coverage check of the documentation (if enabled)"
 	@echo "  dummy      to check syntax errors of document sources"
+	@echo "  diagrams   to render diagrams/*.drawio.xml into images/"
 
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf *.egg-info/
+	rm -f images/*.drawio.svg images/*.drawio.pdf
+
+.PHONY: diagrams
+diagrams:
+	@$(DIAGRAM_SCRIPT)
+
+$(DIAGRAM_TARGETS): diagrams
 
 .PHONY: html
 html:
