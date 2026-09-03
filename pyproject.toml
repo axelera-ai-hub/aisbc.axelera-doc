@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axelera-doc"
+version = "0.1.0"
+description = "Axelera documentation project using Sphinx"
+requires-python = ">=3.9"
+
+dependencies = [
+    "sphinx>=7.3.0",
+    "myst-parser",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme"
+]
+
+[tool.setuptools]
+packages = []
