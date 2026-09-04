@@ -68,7 +68,7 @@ Only the last three are implemented here; the first one is out of scope.
 Chain of trust
 --------------
 
-.. image:: /images/secure-bootflow.drawio.*
+.. image:: /build/generated/secure-bootflow.drawio.*
    :width: 70%
    :alt: Verified boot chain of trust on RK3588
 

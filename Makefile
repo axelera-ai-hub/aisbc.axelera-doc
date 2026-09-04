@@ -55,7 +55,6 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf *.egg-info/
-	rm -f images/*.drawio.svg images/*.drawio.pdf
 
 .PHONY: diagrams
 diagrams:
