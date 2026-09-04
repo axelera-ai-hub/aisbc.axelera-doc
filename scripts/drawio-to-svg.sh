@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Render committed draw.io XML sources into images/ for the Sphinx build.
+# Render committed draw.io XML sources for the Sphinx build.
 #
 # Diagram sources are committed as uncompressed draw.io XML; the rendered
 # images are build artefacts and are not committed.
@@ -9,7 +9,7 @@
 # without an extension lets Sphinx pick the format each builder supports:
 # SVG for HTML, PDF for LaTeX.
 #
-#     .. image:: /images/secure-bootflow.drawio.*
+#     .. image:: /build/generated/secure-bootflow.drawio.*
 #
 # The script is idempotent and incremental: a diagram is only re-rendered
 # when its source is newer than the output.
@@ -18,7 +18,7 @@
 #   scripts/drawio-to-svg.sh [options]
 #
 #   --src DIR       directory holding *.drawio.xml sources (default: diagrams)
-#   --out DIR       directory to write rendered images into (default: images)
+#   --out DIR       directory to write rendered images into (default: build/generated)
 #   --formats LIST  space-separated output formats (default: "svg pdf")
 #   --force         re-render even if the output is up to date
 #   --check         render nothing; exit non-zero if anything is stale or
@@ -33,7 +33,7 @@
 set -euo pipefail
 
 SRC_DIR="diagrams"
-OUT_DIR="images"
+OUT_DIR="build/generated"
 FORMATS="svg pdf"
 FORCE=0
 CHECK=0
