@@ -16,7 +16,7 @@ python3 -m venv .venv
 . ./.venv/bin/activate
 pip install .
 make html
-firefox _build/html/index.html 
+firefox build/html/index.html
 ```
 
 # Build pdf
@@ -25,5 +25,5 @@ firefox _build/html/index.html
 sudo apt update
 sudo apt-get install texlive texlive-latex-extra texlive-fonts-recommended latexmk
 make latexpdf
-evince _build/latex/axelera-bsp.pdf
+evince build/latex/axelera-bsp.pdf
 ```
