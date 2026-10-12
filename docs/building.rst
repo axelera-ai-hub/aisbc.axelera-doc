@@ -88,6 +88,28 @@ kas and podman (docker is also supported).
 
    git clone https://github.com/axelera-ai-hub/axelera-aisbc-bsp.git
 
+Branches
+--------
+
+- The current stable branch is ``axelera_1.3.x``:
+
+  ::
+
+   git checkout axelera_1.3.x
+
+- The current main line of development is on branch ``kirkstone``:
+
+  ::
+
+   git checkout kirkstone
+
+- Work is being done to move to scarthgap, which can be found at ``scarthgap``:
+
+  ::
+
+   git checkout scarthgap
+
+
 Build
 -----
 
