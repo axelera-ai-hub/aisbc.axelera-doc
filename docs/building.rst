@@ -73,6 +73,21 @@ kas and podman (docker is also supported).
 
    pipx install kas
 
+- **Clone the source:**
+
+
+  For the internal Amarula development repo:
+
+  ::
+
+   git clone ssh://<user_name>@gerrit-review.amarulasolutions.com:29418/axelera/meta-axelera
+
+  For the public Axelera repo:
+
+  ::
+
+   git clone https://github.com/axelera-ai-hub/axelera-aisbc-bsp.git
+
 Build
 -----
 
