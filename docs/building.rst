@@ -71,7 +71,7 @@ kas and podman (docker is also supported).
 
   ::
 
-  pipx install kas
+   pipx install kas
 
 Build
 -----
