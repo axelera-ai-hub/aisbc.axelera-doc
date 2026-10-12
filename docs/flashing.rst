@@ -127,7 +127,17 @@ Antelao
 
     ::
 
-     sudo upgrade_tool UF path/to/voyager-image-weston-antelao-3588.update.img
+     sudo upgrade_tool UF path/to/<image>.update.img
+
+  | In order to flash .wic you will need the Rockchip SPL loader.
+  | You can get it for example from Radxa:
+  | https://dl.radxa.com/rock5/sw/images/loader/rk3588_spl_loader_v1.15.113.bin
+  | Then:
+
+    ::
+
+     sudo upgrade_tool DB path/to/<loader>.bin
+     sudo upgrade_tool WL 0 path/to/<image>.wic
 
 - **Program SD**
 
