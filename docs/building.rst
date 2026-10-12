@@ -127,41 +127,35 @@ Build
    eval `ssh-agent -s`
    ssh-add ~/.ssh/<private key>
 
-We need to build the conteinar using Java. This is available in our container available at
-registry.amarulasolutions.com:443/kas-mend-builder.
-The following steps will take this into account.
-
   ::
 
-   # Shortcut to have the Kas container available
-   export KAS_CONTAINER_AXELERA="registry.amarulasolutions.com:443/kas-mend-builder"
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
-          "bitbake voyager-image voyager-image-weston"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/itx-3588j.yaml -c "bitbake voyager-image-weston"
    # Antelao rk3588
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
-          "bitbake voyager-image voyager-image-weston"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake voyager-image-weston"
 
   ::
 
    # Axelera Infrastracture
-   export USE_GITHUB=1
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
 
    # Firefly itx-3588
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
-          "bitbake voyager-image voyager-image-weston"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --runtime-args "-e USE_GITHUB=1" --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/itx-3588j.yaml -c "bitbake voyager-image-weston"
 
    # Antelao rk3588
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml -c \
-          "bitbake voyager-image voyager-image-weston"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --runtime-args "-e USE_GITHUB=1" --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake voyager-image-weston"
 
-  Once complete, wic images are found in build/tmp-glibc/deploy/images/itx-3588j. If you
+
+  Once complete, wic images are found in build/tmp-glibc/deploy/images/<board_name>. If you
   are downloading the source code from github the keyscan should be done on github.com like
   ssh-keyscan github.com
 
@@ -172,17 +166,16 @@ The following steps will take this into account.
    # Amarula Infrastructure
    mkdir -p ssh-build-hosts
    ssh-keyscan -p 38745 gitea.amarulasolutions.com > ssh-build-hosts/known_hosts
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
-                           "bitbake -fc populate_sdk voyager-image"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake -fc populate_sdk voyager-image-weston"
 
   ::
 
    # Axelera infrastracture
-   export USE_GITHUB=1
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/itx-3588j.yaml -c \
-                          "bitbake -fc populate_sdk voyager-image"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --runtime-args "-e USE_GITHUB=1" --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake -fc populate_sdk voyager-image-weston"
 
 - **Clean kernel-module-axelera**
 
@@ -190,7 +183,8 @@ The following steps will take this into account.
 
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   kKAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} as-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake -c cleansstate kernel-module-axelera"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake -c cleansstate kernel-module-axelera"
 
 - **Build kernel-module-axelera**
 
@@ -198,4 +192,5 @@ The following steps will take this into account.
 
    mkdir -p ssh-build-hosts
    ssh-keyscan github.com > ssh-build-hosts/known_hosts
-   KAS_CONTAINER_IMAGE=${KAS_CONTAINER_AXELERA} kas-container --ssh-dir ssh-build-hosts --ssh-agent shell -c "bitbake kernel-module-axelera"
+   KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --runtime-args "-e USE_GITHUB=1" --ssh-dir ssh-build-hosts --ssh-agent \
+          shell kas/antelao.yaml -c "bitbake kernel-module-axelera"
