@@ -13,7 +13,7 @@ production configuration.
 .. admonition:: Read this first
    :class: important
 
-   This is a **working proof of concept, not a shipping security feature.**
+   This is a **working example, not a shipping security feature.**
 
    We will not ship with secure boot enabled.
    Everything from U-Boot upwards is therefore implemented and functional, with
@@ -313,8 +313,8 @@ Two private keys are committed to the repository:
 * ``meta-axelera/recipes-kernel/linux/files/private_key.pem`` - AVB
 * ``meta-axelera/recipes-mender/mender-client/files/dev-private.key`` - Mender
 
-This is **intentional**. Keeping them in-tree is what makes the proof of
-concept reproducible: a clean checkout builds, boots and accepts a signed OTA
+This is **intentional**. Keeping them in-tree is what makes the example
+reproducible: a clean checkout builds, boots and accepts a signed OTA
 with no key ceremony and no per-developer configuration.
 
 The obvious consequence is that any device built with defaults trusts anyone
@@ -969,7 +969,7 @@ What a production configuration would require
 =============================================
 
 This section is **not a procedure to follow**. It exists so that the distance
-between the current proof of concept and a genuinely secured device is
+between the current example and a genuinely secured device is
 written down and can be estimated, should the requirement ever appear.
 
 Software side
