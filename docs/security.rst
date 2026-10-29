@@ -40,7 +40,7 @@ production configuration.
 Overview
 ========
 
-Four largely independent mechanisms are involved:
+Five largely independent mechanisms are involved:
 
 .. list-table::
    :header-rows: 1
@@ -50,8 +50,11 @@ Four largely independent mechanisms are involved:
      - Protects
      - Enforcement point
    * - Rockchip loader secure boot
-     - ``idblock``, U-Boot
+     - ``idblock`` (DDR init and SPL)
      - BootROM, against a hash fused into OTP
+   * - SPL FIT verification
+     - U-Boot proper, TF-A, OP-TEE
+     - SPL, against a key in its device tree
    * - AVB (Android Verified Boot)
      - ``boot.img`` (kernel + DTB + initramfs)
      - U-Boot, against a public key compiled into U-Boot
@@ -62,7 +65,7 @@ Four largely independent mechanisms are involved:
      - OTA update payloads
      - ``mender-client``, against a public key in the rootfs
 
-Only the last three are implemented here; the first one is out of scope.
+The first one is out of scope; everything else is implemented here.
 
 
 Chain of trust
@@ -79,28 +82,19 @@ Chain of trust
    ``0012-avb-Add-Rockchip-patch-to-hardcode-pubkey.patch`` replaces the
    eFuse-based key validation in ``validate_vbmeta_public_key()`` with a
    ``memcmp()`` against a byte array compiled into U-Boot. That is sound
-   *only if* U-Boot itself cannot be replaced, which requires the Rockchip
-   loader secure boot stage to be signed and the OTP fused.
+   *only if* U-Boot itself cannot be replaced, which requires the OTP
+   to be fused.
 
    That stage is out of scope for this BSP. Anyone with write access to the
-   eMMC can replace U-Boot with one carrying their own AVB public key, at
-   which point every layer above it verifies happily against the attacker's
-   key. Every mechanism documented below is therefore a **correctness and
+   eMMC can replace the loader and U-Boot with ones carrying their own
+   signatures.
+   Every mechanism documented below is therefore a **correctness and
    integrity** mechanism (it detects accidental corruption, interrupted
    updates and unsigned artifacts) and not a defence against an attacker
    with physical or root access.
 
    This is a deliberate scope decision, not an oversight. See
    :ref:`security-production-otp`.
-
-
-Scope and non-goals
--------------------
-
-Out of scope **by decision**, and not planned:
-
-* Loader/U-Boot signing and OTP fusing. This is the hardware root of trust,
-  and its absence is what reduces everything else to an integrity mechanism.
 
 
 .. _security-avb-vs-fit:
@@ -290,10 +284,10 @@ different boot stages by different tools, so it is best to not confuse them.
      - Algorithm
      - Tool
      - Where the public half lives
-   * - Loader PSK/ISK
-     - per Rockchip doc
-     - ``rk_sign_tool``
-     - Hash fused into OTP/eFuse
+   * - Loader and U-Boot key
+     - **RSA-2048**
+     - ``mkimage``, ``rk_sign_tool``
+     - SPL device tree
    * - AVB root key
      - **RSA-2048**
      - ``avbtool``
@@ -327,6 +321,46 @@ mean the repository must be treated as containing no secrets.
    Removing the files later is not sufficient. Both keys are in git history
    and would have to be treated as permanently compromised, with history
    rewritten or the repository re-created.
+
+
+Generating the U-Boot/SPL key
+-----------------------------
+
+Note that for U-Boot/SPL we do NOT include a development keypair
+in the repository.
+The reason for this is that these are designed to end up being burned
+in the OTP area, which is **irreversible**.
+Please create your own keypair and put it in the ``env/keys/uboot-spl``
+directory inside the root dir of our repo.
+This ``env`` directory is included in ``.gitignore``, and is a place
+designed to contain the production keys in a way they won't be accidentally
+included in the repo commits, but still accessible from kas-container
+during the build stage.
+
+.. code-block:: bash
+
+   mkdir -p env/keys/uboot-spl && cd env/keys/uboot-spl
+   openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out dev.key
+   openssl rsa -in dev.key -pubout -out dev.pubkey
+   openssl req -batch -new -x509 -key dev.key -out dev.crt
+   chmod 600 dev.key
+
+``mkimage`` signs with ``dev.key`` but takes the public key it embeds
+in the SPL from ``dev.crt``, so the three files must belong to the same
+key. All three commands below must print the same hash:
+
+.. code-block:: bash
+
+   openssl rsa  -in dev.key            -noout -modulus | sha256sum
+   openssl x509 -in dev.crt            -noout -modulus | sha256sum
+   openssl rsa  -pubin -in dev.pubkey  -noout -modulus | sha256sum
+
+.. warning::
+
+   Once a board's OTP is fused with the hash of this key, the board only
+   boots loaders signed with it, permanently. Keep the key, and the
+   signed MASKROM loader built with it, backed up: the loader is the only
+   way to reflash a fused board through MASKROM.
 
 
 Generating the AVB root key
@@ -459,6 +493,129 @@ is empty, so an unsigned artifact cannot be produced by accident.
 ``mender-client_3.%.bbappend``, which means a **missing** public key silently
 yields a device that trusts the development key. Consider making that default
 fatal for production builds.
+
+
+.. _security-loader-signing:
+
+Loader and U-Boot signing
+=========================
+
+The SPL verifies U-Boot proper before handing over to it, and every
+image below the kernel is signed with a single key, so that the same
+images keep working once the OTP is fused and the BootROM starts
+verifying the loader as well (see :ref:`security-production-otp`).
+
+
+What is signed and what verifies it
+-----------------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 25 45
+
+   * - Image
+     - Signed by
+     - Verified by
+   * - ``uboot.img`` (FIT: U-Boot, TF-A, OP-TEE, U-Boot DTB)
+     - ``mkimage``
+     - SPL, against the public key embedded in its device tree
+   * - ``idblock.img`` (DDR init and SPL)
+     - ``rk_sign_tool``
+     - BootROM, only once the OTP is fused
+   * - MASKROM loader (``rk3588_spl_loader_*.bin``)
+     - ``rk_sign_tool``
+     - BootROM, only once the OTP is fused
+
+The FIT signature uses SHA-256 with RSA-2048 and PSS padding. ``mkimage``
+marks the key as *required* in the SPL device tree, so the SPL refuses
+to boot a ``uboot.img`` that is not signed with that key, whether or not
+the OTP is fused.
+
+
+Enabling it
+-----------
+
+Signing is controlled by ``AXE_UBOOT_SIGN_KEY_DIR``, which
+by default is unset.
+In :ref:`security-keys`, we created the keypair in ``env/keys/uboot-spl/``.
+To enable this signing and checking, add the following in
+``kas/include/base.yaml``, under the ``local_conf_header`` section:
+
+.. code-block:: yaml
+
+   uboot-signing: |
+     AXE_UBOOT_SIGN_KEY_DIR = "${TOPDIR}/../env/keys/uboot-spl"
+
+When the variable is set, ``u-boot-rockchip.bbappend``:
+
+* sets ``RK_UBOOT_SPL``, so the SPL is built from source; Rockchip's
+  prebuilt SPL does not contain our key and cannot verify U-Boot;
+* adds ``fit-signature.cfg``, which enables ``CONFIG_FIT_SIGNATURE`` and
+  ``CONFIG_SPL_FIT_SIGNATURE``, and enlarges the SPL heap with
+  ``CONFIG_SPL_SYS_MALLOC_F_LEN=0x200000``: the SPL uses the simple
+  allocator, which never frees, and decompressing the images while
+  checking signatures exhausts the default 512 KiB;
+* copies the keys into ``${B}/keys``, where ``make.sh`` expects them;
+* repacks the idblock with the SPL built from source and signs it.
+  The base recipe's ``make.sh --idblock`` packs Rockchip's prebuilt SPL
+  and does not sign it.
+
+We also include a patch in ``u-boot-rockchip`` required for any of this
+to work: without it, ``mkimage`` signs with the host OpenSSL's default
+PSS salt length, which newer OpenSSL versions set to the digest length,
+while the SPL only accepts the maximum.
+The build then fails its own signature check with
+``invalid pss padding (leftmost byte of db isn't 0x01)``.
+The patch itself forces ``mkimage`` to sign with the maximum PSS salt length.
+
+
+Checking a build
+----------------
+
+In ``log.do_compile`` of ``u-boot-rockchip``, a signed build reports:
+
+.. code-block:: text
+
+   Signature check OK
+   Verifying Hash Integrity ... sha256,rsa2048:dev+
+   Image(signed, version=0): uboot.img (FIT with uboot, trust...) is ready
+   Image(signed): rk3588_spl_loader_v1.18.113.bin (with spl, ddr...) is ready
+   signing idblock ok
+
+An unsigned build reports ``Image(no-signed)`` instead.
+
+
+Checking a board
+----------------
+
+On the serial console, the SPL reports the OTP enable flag and the
+result of the signature check:
+
+.. code-block:: text
+
+   ## Verified-boot: 0
+   sha256,rsa2048:dev+
+
+``Verified-boot: 0`` means the OTP enable flag is not set.
+``dev+`` means U-Boot was verified with the key. A ``uboot.img`` signed
+with a different key is rejected, and the board does not boot:
+
+.. code-block:: text
+
+   padding_pss_verify: invalid pss padding (0xbc is missing)
+   Failed to verify required signature 'key-dev'
+   SPL: failed to boot from all boot devices
+
+
+Limits
+------
+
+Until the OTP is fused, the BootROM runs any idblock. Someone able to
+write the eMMC can replace the SPL with one that verifies nothing, so
+this stage alone is not a root of trust: it protects the SPL to U-Boot
+handover against a modified or wrongly signed ``uboot.img``, and it
+prepares the images for fusing. Until then, any board can still be
+recovered through MASKROM with any loader.
 
 
 .. _security-avb-build:
