@@ -38,7 +38,7 @@ Updating
 
     .. code-block:: bash
 
-        mender install /data/voyager-image-weston-<board_name>-<version>.mender
+        mender-update install /data/voyager-image-weston-<board_name>-<version>.mender
         reboot
 
 - **Partition layout**
