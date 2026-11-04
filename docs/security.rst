@@ -57,7 +57,7 @@ Five largely independent mechanisms are involved:
      - SPL, against a key in its device tree
    * - AVB (Android Verified Boot)
      - ``boot.img`` (kernel + DTB + initramfs)
-     - U-Boot, against a public key compiled into U-Boot
+     - U-Boot, against a public key in U-Boot's device tree
    * - dm-verity
      - root filesystem, per 4 KiB block
      - Kernel, against a root hash embedded in the initramfs
@@ -79,9 +79,9 @@ Chain of trust
 
    **The chain is anchored at U-Boot, not at the BootROM.**
 
-   ``0012-avb-Add-Rockchip-patch-to-hardcode-pubkey.patch`` replaces the
+   ``0012-avb-Validate-vbmeta-key-against-U-Boots-dts.patch`` replaces the
    eFuse-based key validation in ``validate_vbmeta_public_key()`` with a
-   ``memcmp()`` against a byte array compiled into U-Boot. That is sound
+   comparison against a key in U-Boot's device tree. That is sound
    *only if* U-Boot itself cannot be replaced, which requires the OTP
    to be fused.
 
@@ -291,8 +291,8 @@ different boot stages by different tools, so it is best to not confuse them.
    * - AVB root key
      - **RSA-2048**
      - ``avbtool``
-     - Compiled into U-Boot as
-       ``include/android_avb/avb_root_pub.h``
+     - In U-Boot's device tree as
+       ``public-key`` in the ``/avb`` node
    * - Mender artifact key
      - RSA (size configurable)
      - ``mender-artifact``
@@ -321,6 +321,42 @@ mean the repository must be treated as containing no secrets.
    Removing the files later is not sufficient. Both keys are in git history
    and would have to be treated as permanently compromised, with history
    rewritten or the repository re-created.
+
+
+.. _security-key-variables:
+
+Where the keys come from
+------------------------
+
+Each key is read from a location set in ``kas/include/base.yaml``, under
+``local_conf_header``. For the directories, the file names inside them are
+fixed.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 26 44
+
+   * - Variable
+     - Points to
+     - Default
+   * - ``AXE_UBOOT_SIGN_KEY_DIR``
+     - A directory containing ``dev.key``, ``dev.pubkey``, ``dev.crt``
+     - Empty: the loader and U-Boot are not signed, and Rockchip's prebuilt
+       SPL is used. See :ref:`security-loader-signing`.
+   * - ``AXE_AVB_SIGN_KEY_DIR``
+     - A directory containing ``private_key.pem``
+     - ``meta-axelera/recipes-kernel/linux/files``, the development key.
+       Must not be empty, since every build signs ``boot.img``.
+   * - ``AXE_MENDER_ARTIFACT_SIGN_KEY``
+     - A private key file, under any name
+     - ``recipes-mender/mender-client/files/dev-private.key``.
+   * - ``AXE_MENDER_ARTIFACT_PUBKEY``
+     - A public key file, under any name
+     - ``recipes-mender/mender-client/files/dev-public.key``.
+
+Paths are resolved inside kas-container, where ``${TOPDIR}/..`` is the
+repository root. Keys that must not be committed belong in
+``${TOPDIR}/../env/keys/<name>``: the ``env/`` directory is ignored by git.
 
 
 Generating the U-Boot/SPL key
@@ -368,90 +404,36 @@ Generating the AVB root key
 
 .. code-block:: bash
 
+   mkdir -p env/keys/avb
    openssl genpkey -algorithm RSA \
        -pkeyopt rsa_keygen_bits:2048 \
        -outform PEM \
-       -out avb_private_key.pem
+       -out env/keys/avb/private_key.pem
 
-   openssl rsa -in avb_private_key.pem -pubout -out avb_public_key.pem
+Point ``AXE_AVB_SIGN_KEY_DIR`` at this key in ``kas/include/base.yaml``
+by uncommenting the correct line under ``avb-signing``:
 
-Move the new private key to the linux-rockchip recipe files:
-
-.. code-block:: bash
-
-   cp path/to/avb_private_key.pem meta-axelera/recipes-kernel/linux/files/private_key.pem
+.. code-block:: diff
 
 
-.. _embedding-avb-key-uboot:
+   diff --git a/kas/include/base.yaml b/kas/include/base.yaml
+   index 29a9e24..d6e6f7f 100644
+   --- a/kas/include/base.yaml
+   +++ b/kas/include/base.yaml
+   @@ -180,8 +180,8 @@ local_conf_header:
+        # AXE_UBOOT_SIGN_KEY_DIR = "${TOPDIR}/../env/keys/uboot-spl"
 
-Embedding the AVB public key in U-Boot
---------------------------------------
+      avb-signing: |
+   -    AXE_AVB_SIGN_KEY_DIR = "${TOPDIR}/../meta-axelera/recipes-kernel/linux/files"
+   -    # AXE_AVB_SIGN_KEY_DIR = "${TOPDIR}/../env/keys/avb"
+   +    # AXE_AVB_SIGN_KEY_DIR = "${TOPDIR}/../meta-axelera/recipes-kernel/linux/files"
+   +    AXE_AVB_SIGN_KEY_DIR = "${TOPDIR}/../env/keys/avb"
 
-.. note::
+      engineering: |
+        DISTRO_FEATURES:append = "${@' voyager-dm-verity' if d.getVar('AXE_ENGINEERING_BUILD') != '1' else ''}"
 
-   Using the ``avbtool`` included with the ``rk-binary-native``
-   requires ``python2`` on the host.
-   The simplest way to have it on modern distros is using ``pyenv``, which
-   can be obtained at this link:
-   https://github.com/pyenv/pyenv
-
-``avbtool`` emits the public key in AVB's own binary format (not PEM),
-which is what U-Boot compares against:
-
-.. code-block:: bash
-
-   python2 ./build/tmp-glibc/sysroots-components/x86_64/rk-binary-native/usr/bin/avbtool extract_public_key \
-   --key path/to/avb_private_key.pem \
-   --output avb_root_pub.bin
-
-   xxd -i avb_root_pub.bin > avb_root_pub.h
-
-Finally, replace the ``avb_root_pub.h`` file in the U-Boot source.
-
-.. note::
-
-   This will require updating patch :ref:`security-uboot-pubkey`.
-   The easiest way to do this is using ``devtool`` within ``kas-container``.
-
-   To enter the ``kas-container`` shell, use the following command:
-
-   .. code-block:: bash
-
-    KAS_CONTAINER_IMAGE_DISTRO=debian-bookworm kas-container --ssh-dir ssh-build-hosts --ssh-agent shell kas/antelao.yaml
-
-   Then, from within this shell, run:
-
-   .. code-block:: bash
-
-    devtool modify u-boot-rockchip
-    cd /work/build/workspace/sources/u-boot-rockchip
-    git log --oneline --grep "Add Rockchip patch to hardcode pubkey"
-    # Assuming for example the output of this command is:
-    # a07789be61 avb: Add Rockchip patch to hardcode pubkey
-    git rebase -i a07789be61^
-
-   Within the interactive rebase prompt, change ``pick`` to ``edit`` in the
-   first line, save and quit.
-
-   Next, move the newly generated ``avb_root_pub.h`` to ``include/android_avb/avb_root_pub.h``,
-   and then run:
-
-   .. code-block:: bash
-
-    git add include/android_avb/avb_root_pub.h
-    git commit --amend
-    git rebase --continue
-    devtool finish -f u-boot-rockchip /work/meta-axelera/
-
-   You should see something like:
-
-   .. code-block:: bash
-
-    NOTE: Copying 0012-avb-Add-Rockchip-patch-to-hardcode-pubkey.patch to /work/meta-axelera/recipes-bsp/u-boot/u-boot-rockchip/0012-avb-Add-Rockchip-patch-to-hardcode-pubkey.patch
-
-   ``git status`` should show that patch :ref:`security-uboot-pubkey` has been modified.
-   This change should be ready to commit and the repo should be ready
-   to be built.
+The public part of the key will be automatically extracted by U-Boot's
+recipe before embedding it in its device tree.
 
 
 Generating the Mender artifact key
@@ -626,14 +608,10 @@ AVB: build-side implementation
 Tooling
 -------
 
-Rockchip's ``avbtool`` lives in the ``rk-binary`` repository under
-``extra/linux/Linux_SecurityAVB/scripts/`` and is installed by an append.
-
-This copy of ``avbtool`` is a legacy fork that still requires **Python 2**,
-which is why ``meta-python2`` is pinned into ``kas/include/base.yaml`` and why
-the kernel recipe depends on ``python-native`` and invokes ``nativepython``
-rather than ``python3``.
-
+``avbtool`` comes from ``python3-avbtool-native``. The kernel recipe
+uses it to sign ``boot.img`` and ``vbmeta.img``, and the U-Boot recipe
+uses it to extract the public key to embed it in its device tree.
+Both run it with ``nativepython3``.
 
 Image generation
 ----------------
@@ -662,12 +640,12 @@ that this is the single source of truth.
 
 .. code-block:: bash
 
-   nativepython ${STAGING_BINDIR_NATIVE}/avbtool add_hash_footer \
+   nativepython3 ${STAGING_BINDIR_NATIVE}/avbtool add_hash_footer \
        --image          ${DEPLOYDIR}/boot.img \
        --partition_name boot \
        --partition_size 50331648 \
        --algorithm      SHA256_RSA2048 \
-       --key            ${WORKDIR}/private_key.pem
+       --key            ${AXE_AVB_SIGN_KEY_DIR}/private_key.pem
 
 ``--partition_name boot`` (not ``boot_a``) is significant; see
 :ref:`security-uboot-partname`.
@@ -676,11 +654,11 @@ that this is the single source of truth.
 
 .. code-block:: bash
 
-   nativepython ${STAGING_BINDIR_NATIVE}/avbtool make_vbmeta_image \
+   nativepython3 ${STAGING_BINDIR_NATIVE}/avbtool make_vbmeta_image \
        --include_descriptors_from_image ${DEPLOYDIR}/boot.img \
        --padding_size 4096 \
        --algorithm    SHA256_RSA2048 \
-       --key          ${WORKDIR}/private_key.pem \
+       --key          ${AXE_AVB_SIGN_KEY_DIR}/private_key.pem \
        --output       ${DEPLOYDIR}/vbmeta.img
 
 ``vbmeta.img`` is the signed root of the AVB metadata: it carries the hash
@@ -724,8 +702,8 @@ version bump; three of the five touch ``common/android_bootloader.c``.
      - ``android_bootloader.c-Fix-boot-crash-with-AVB-images``
      - Strip the A/B suffix before descriptor lookup
    * - 0012
-     - ``avb-Add-Rockchip-patch-to-hardcode-pubkey``
-     - Replace eFuse key validation with a compiled-in key
+     - ``avb-Validate-vbmeta-key-against-U-Boots-dts``
+     - Replace eFuse key validation with a key embedded in dts
    * - 0013
      - ``include-configs-Enlarge-SYS_BOOTM_LEN``
      - 64M -> 128M decompression window
@@ -820,45 +798,57 @@ in all except the ``partition_name``.
 
 .. _security-uboot-pubkey:
 
-0012 - Hardcoded public key
+0012 - Embedded public key
 ---------------------------
 
-This patch does two things.
+In the vendor tree, ``validate_vbmeta_public_key()`` and
+``validate_public_key_for_partition()`` either validate the key against eFuse
+(``avb_atx_validate_vbmeta_public_key()``) or trust any key, depending on
+``CONFIG_AVB_VBMETA_PUBLIC_KEY_VALIDATE``. In the second case, AVB
+verification is a no-op: any correctly formatted vbmeta, signed with any key,
+is accepted.
 
-It replaces the body of ``validate_vbmeta_public_key()`` and
-``validate_public_key_for_partition()``, which in the vendor tree either
-call ``avb_atx_validate_vbmeta_public_key()`` (eFuse-backed) or
-unconditionally trust the key depending on ``CONFIG_AVB_VBMETA_PUBLIC_KEY_VALIDATE``,
-with a direct comparison:
+The patch makes both functions compare the key in vbmeta with the
+``public-key`` property of the ``/avb`` node in U-Boot's own device tree:
 
-.. code-block:: diff
+.. code-block:: dts
 
-   +	*out_is_trusted = false;
-   +	if (public_key_length != avb_root_pub_bin_len)
-   +		return AVB_IO_RESULT_ERROR_IO;
-   +	if (memcmp(public_key_data, avb_root_pub_bin, public_key_length) == 0)
-   +		*out_is_trusted = true;
+   / {
+       avb {
+           u-boot,dm-pre-reloc;
+           public-key = /incbin/("avb_root_pub.bin");
+       };
+   };
 
-Note that the ``#else`` branch of the original code set ``*out_is_trusted =
-true`` unconditionally. Without this patch, **AVB verification is a no-op**:
-any correctly-formatted vbmeta signed by any key is accepted.
+The node is defined in ``arch/arm/dts/axe-avb.dtsi``, which the patch includes
+from the board device trees: ``rk3588-antelao-axe-sbc.dts``, and
+``rk3588-evb.dts``, which itx-3588j uses. ``avb_root_pub.bin`` is generated at
+build time from ``AXE_AVB_SIGN_KEY_DIR``, so the key is not part of the U-Boot
+source, and the dtsi itself is MIT-licensed.
+This allows clients enforcing secureboot to not have to disclose their public
+key under the GPL license.
 
-It also forces the device lock state:
+The key must be read from U-Boot's own device tree. With
+``CONFIG_USING_KERNEL_DTB``, Rockchip's U-Boot switches ``gd->fdt_blob`` to
+the kernel's device tree, which comes from the ``boot.img`` being verified: a
+key read from there would let any ``boot.img`` carry its own trusted key. The
+patch reads ``gd->ufdt_blob`` instead, which keeps pointing at U-Boot's device
+tree. A missing key, a missing device tree or a length mismatch all leave the
+key untrusted; a missing key is reported as:
 
-.. code-block:: diff
+.. code-block:: text
 
-    	if (ops->read_is_device_unlocked(ops, (bool *)&unlocked) != AVB_IO_RESULT_OK)
-    		printf("Error determining whether device is unlocked.\n");
+   avb_check_root_pub: No AVB root public key in U-Boot's device tree
 
-   +	unlocked = 0; /* Lock State Fixed */
+The patch also forces the device lock state to locked, since an unlocked
+device skips verification entirely. As a consequence, the ``security``
+partition's lock state is ignored, and there is no supported way to unlock a
+unit for development.
 
-An unlocked device skips verification entirely, so this is required; however,
-it also means the ``security`` partition's lock state is ignored and there is
-no supported way to unlock a unit for development. Development units need a
-separate U-Boot build.
-
-The approach is taken verbatim from Rockchip's public secure boot
-documentation and is only as strong as the loader-stage signing beneath it.
+The key is only as protected as U-Boot itself: it lives in the U-Boot device
+tree inside ``uboot.img``, which the SPL verifies only when loader signing is
+enabled (see :ref:`security-loader-signing`), and the SPL is in turn verified
+by the BootROM only once the OTP is fused.
 
 
 0013 - Decompression window
@@ -1135,10 +1125,9 @@ Software side
 All of this is within the BSP and has been exercised in some form:
 
 * Generate AVB, Mender and loader keypairs in an HSM or an offline key store.
-* Replace ``private_key.pem`` and set ``AXE_MENDER_ARTIFACT_SIGN_KEY`` /
-  ``AXE_MENDER_ARTIFACT_PUBKEY`` (see :ref:`security-keys`).
-* Regenerate ``avb_root_pub.h`` and update patch :ref:`security-uboot-pubkey`
-  (see :ref:`embedding-avb-key-uboot` for an idea on how to approach the problem).
+* Point ``AXE_AVB_SIGN_KEY_DIR`` and ``AXE_UBOOT_SIGN_KEY_DIR`` to the
+  directories containing the new keys, and set ``AXE_MENDER_ARTIFACT_SIGN_KEY``
+  / ``AXE_MENDER_ARTIFACT_PUBKEY`` (see :ref:`security-key-variables`).
 * Purge the development keys, treating both as compromised and rewriting
   history.
 * Make ``AXE_MENDER_ARTIFACT_PUBKEY`` fatal when unset, rather than defaulting
@@ -1215,9 +1204,9 @@ Boot chain
   .. note::
 
     ``verifiedbootstate`` is the most useful single indicator. U-Boot sets it to
-    ``green`` only when the vbmeta signature validated against the compiled-in
-    key *and* every hash descriptor matched. ``orange`` means verification was
-    skipped because the device reported itself unlocked; since
+    ``green`` only when the vbmeta signature validated against the key in the
+    device tree *and* every hash descriptor matched. ``orange`` means verification
+    was skipped because the device reported itself unlocked; since
     patch :ref:`security-uboot-pubkey` is meant to make this impossible,
     treat it as that patch having stopped working rather than as a configuration
     problem. ``red`` means verification ran and failed.
