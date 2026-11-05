@@ -3,6 +3,15 @@ Revision History
 
 `-------------------------------------------------------------`
 
+| Author: **Patrick Barsanti <patrick.barsanti@amarulasolutions.com>**
+| Date: **November 4 2026**
+
+**Changes**::
+
+  - AXELERA-246 Update security documentation following BSP changes
+    on key handling
+
+
 | Author: **Michael Trimarchi <michael@amarulasolutions.com>**
 | Date: **October 29 2026**
 
