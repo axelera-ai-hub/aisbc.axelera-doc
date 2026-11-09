@@ -17,3 +17,4 @@ Welcome to the meta-axelera documentation!
    docs/updates.rst
    docs/test-results.rst
    docs/security.rst
+   docs/build-variants.rst
