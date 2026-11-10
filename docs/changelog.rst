@@ -3,6 +3,15 @@ Revision History
 
 `-------------------------------------------------------------`
 
+| Author: **Annachiara Gallo <annachiara.gallo@amarulasolutions.com>**
+| Date:   **November 9 2026**
+
+**Changes**::
+
+  - AXELERA-260 Add build variants detailing introduction and usage
+    of the AXE_ENGINEERING_BUILD variable
+
+
 | Author: **Patrick Barsanti <patrick.barsanti@amarulasolutions.com>**
 | Date: **November 4 2026**
 
