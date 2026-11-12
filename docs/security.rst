@@ -40,7 +40,7 @@ production configuration.
 Overview
 ========
 
-Five largely independent mechanisms are involved:
+Six largely independent mechanisms are involved:
 
 .. list-table::
    :header-rows: 1
@@ -64,6 +64,9 @@ Five largely independent mechanisms are involved:
    * - Mender artifact signing
      - OTA update payloads
      - ``mender-client``, against a public key in the rootfs
+   * - OP-TEE TA verification
+     - Trusted Applications
+     - OP-TEE OS (BL32), against a public key in the BL32
 
 The first one is out of scope; everything else is implemented here.
 
@@ -273,7 +276,7 @@ boot with a magic or hash error.
 Key material
 ============
 
-There are **three** distinct key roles. Two of them are RSA keypairs used at
+There are **four** distinct key roles. Three of them are RSA keypairs used at
 different boot stages by different tools, so it is best to not confuse them.
 
 .. list-table::
@@ -297,6 +300,10 @@ different boot stages by different tools, so it is best to not confuse them.
      - RSA (size configurable)
      - ``mender-artifact``
      - Rootfs, ``/etc/mender/artifact-verify-key.pem``
+   * - OP-TEE TA signing key
+     - **RSA-2048**
+     - ``sign_encrypt.py``, ``change_puk``
+     - OP-TEE OS (BL32), ``oem_n`` key slot
 
 
 Development keys in the tree
@@ -353,6 +360,10 @@ fixed.
    * - ``AXE_MENDER_ARTIFACT_PUBKEY``
      - A public key file, under any name
      - ``recipes-mender/mender-client/files/dev-public.key``.
+   * - ``AXE_OPTEE_TA_SIGN_KEY_DIR``
+     - A directory containing ``oem_privkey.pem``
+     - Empty: OP-TEE keeps Rockchip's public test key, and TAs are signed
+       with it. See :ref:`security-optee-ta-key`.
 
 Paths are resolved inside kas-container, where ``${TOPDIR}/..`` is the
 repository root. Keys that must not be committed belong in
@@ -475,6 +486,28 @@ is empty, so an unsigned artifact cannot be produced by accident.
 ``mender-client_3.%.bbappend``, which means a **missing** public key silently
 yields a device that trusts the development key. Consider making that default
 fatal for production builds.
+
+
+Generating the OP-TEE TA signing key
+------------------------------------
+
+.. code-block:: bash
+
+   mkdir -p env/keys/optee
+   openssl genrsa -out env/keys/optee/oem_privkey.pem 2048
+
+Then point ``AXE_OPTEE_TA_SIGN_KEY_DIR`` at it in ``kas/include/base.yaml``,
+by uncommenting the line under ``optee-signing``:
+
+.. code-block:: yaml
+
+   optee-signing: |
+     AXE_OPTEE_TA_SIGN_KEY_DIR = "${TOPDIR}/../env/keys/optee"
+
+.. important::
+
+   The key must be RSA-2048: ``change_puk``, which puts its public half into
+   OP-TEE, refuses any other size. See :ref:`security-optee-ta-key`.
 
 
 .. _security-loader-signing:
@@ -1110,6 +1143,107 @@ the verified boot slot atomically.
    and the Mender variables are silently lost.
 
 
+.. _security-optee:
+
+OP-TEE
+======
+
+OP-TEE is the operating system of the Arm secure world. It runs Trusted
+Applications (TAs) on behalf of Linux, and provides secure storage.
+
+
+Components
+----------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 24 30 46
+
+   * - Component
+     - Source
+     - Notes
+   * - OP-TEE OS (BL32)
+     - ``bin/rk35/rk3588_bl32_v1.17.bin`` from rkbin
+     - Prebuilt by Rockchip: OP-TEE 3.13 with Rockchip's changes
+       (``3.13.0-860``). Packed into ``uboot.img`` and started by TF-A.
+   * - ``tee-supplicant``, ``libteec``
+     - ``optee-rockchip``
+     - Prebuilt by Rockchip. ``tee-supplicant`` loads TAs from
+       ``/lib/optee_armtz`` and serves OP-TEE's RPMB requests.
+   * - TAs and ``xtest``
+     - ``optee-test-rockchip``
+     - Built from Rockchip's ``rk_tee_user/v2`` with Rockchip's TA dev kit.
+       Engineering images only.
+   * - ``change_puk``
+     - ``optee-rockchip-native``
+     - Build-time tool that replaces the TA verification key in the BL32.
+
+The BL32 travels in ``uboot.img``, so it is protected exactly like U-Boot:
+verified by the SPL when loader signing is enabled (see
+:ref:`security-loader-signing`), and anchored only once the OTP is fused.
+
+
+.. _security-optee-ta-key:
+
+TA verification
+---------------
+
+OP-TEE only loads a TA whose signature, RSASSA-PSS with SHA-256, verifies
+against a public key built into the BL32. Rockchip's BL32 has three key
+slots:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 18 22 60
+
+   * - Slot
+     - Offset in v1.17
+     - Contents
+   * - ``default_n``
+     - ``0x68F6F``
+     - Not upstream OP-TEE's public default key; presumably Rockchip's.
+   * - ``rk_n``
+     - ``0x6906F``
+     - Presumably Rockchip's own TA key.
+   * - ``oem_n``
+     - ``0x6916F``
+     - Rockchip's public **test key** by default.
+
+The private half of that test key ships in Rockchip's repository
+(``rk_tee_user/v2/export-ta_arm64/keys/oem_privkey.pem``): with the default
+configuration, anyone can sign a TA this OP-TEE accepts.
+
+Setting ``AXE_OPTEE_TA_SIGN_KEY_DIR`` (see :ref:`security-key-variables`)
+replaces it:
+
+* ``u-boot-rockchip`` runs Rockchip's ``change_puk`` on the BL32 before
+  ``make.sh`` packs ``uboot.img``. It overwrites the ``oem_n`` slot only,
+  with the public half of ``oem_privkey.pem``. The BL32 is restored from a
+  pristine copy first on every compile, so a key from an earlier build
+  cannot linger once the variable changes.
+* ``optee-test-rockchip`` signs its TAs with the same key.
+
+``change_puk`` exits with status 0 even when it refuses a key, so the recipe
+checks its output for ``Success!`` and stops the build otherwise. The BL32
+file name is set in ``AXE_RK_BL32``, and must be updated together with
+``SRCREV_rkbin``.
+
+
+Secure storage
+--------------
+
+Secure storage lives in the eMMC's RPMB partition. OP-TEE derives the RPMB
+authentication key from the hardware unique key (HUK), which Rockchip's
+OP-TEE in turn derives from OTP.
+
+.. warning::
+
+   On first use, OP-TEE programs the RPMB authentication key into the eMMC,
+   and this is **irreversible** for that eMMC. Running ``xtest``'s 6000
+   series is enough to do it. If the HUK changes afterwards, for example
+   through OTP provisioning, the data in RPMB becomes unreadable.
+
+
 .. _security-production:
 
 What a production configuration would require
@@ -1125,9 +1259,10 @@ Software side
 All of this is within the BSP and has been exercised in some form:
 
 * Generate AVB, Mender and loader keypairs in an HSM or an offline key store.
-* Point ``AXE_AVB_SIGN_KEY_DIR`` and ``AXE_UBOOT_SIGN_KEY_DIR`` to the
-  directories containing the new keys, and set ``AXE_MENDER_ARTIFACT_SIGN_KEY``
-  / ``AXE_MENDER_ARTIFACT_PUBKEY`` (see :ref:`security-key-variables`).
+* Point ``AXE_AVB_SIGN_KEY_DIR``, ``AXE_UBOOT_SIGN_KEY_DIR`` and
+  ``AXE_OPTEE_TA_SIGN_KEY_DIR`` to the directories containing the new keys,
+  and set ``AXE_MENDER_ARTIFACT_SIGN_KEY`` / ``AXE_MENDER_ARTIFACT_PUBKEY``
+  (see :ref:`security-key-variables`).
 * Purge the development keys, treating both as compromised and rewriting
   history.
 * Make ``AXE_MENDER_ARTIFACT_PUBKEY`` fatal when unset, rather than defaulting
@@ -1334,3 +1469,23 @@ Deliberate, per the current scope
      - The repository contains no secrets and must not be assumed to.
    * - Device lock state hardcoded
      - No supported unlock path; dev units need a separate U-Boot.
+
+
+Inherited from Rockchip's OP-TEE
+--------------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Limitation
+     - Consequence
+   * - OP-TEE OS is a prebuilt binary
+     - It cannot be rebuilt or configured; only its TA key can be replaced,
+       with ``change_puk``.
+   * - TA signing key limited to RSA-2048
+     - ``change_puk`` refuses other key sizes.
+   * - ``rk_n`` and ``default_n`` key slots untested
+     - Rockchip may still be able to sign TAs these devices accept.
+   * - No PKCS#11 TA
+     - PKCS#11 is unavailable; ``xtest`` is built without its PKCS#11 tests.
